@@ -21,7 +21,33 @@ function translateRank(rankHe, lang) {
   return Object.entries(RANK_EN).reduce((r, [he, en]) => r.replace(he, en), rankHe);
 }
 
+// ── Name phonetic translation map (He → En) ───────────────
+const NAME_EN = {
+  'אדיר כהן':        'Adir Cohen',
+  'איציק טרבלסי':   'Itzik Trabelsi',
+  'אלי אביסרור':    'Eli Avisror',
+  'הדריאל בן נון':  'Hadriel Ben Nun',
+  'חיים לוי':       'Chaim Levi',
+  'עידו סולומון':   'Ido Solomon',
+  'עמית שרעבי':     'Amit Sharaby',
+  'קרן לוין':       'Keren Levin',
+  'רועי זיוון':     'Roi Zivan',
+  'רועי תווינה':    'Roi Tavina',
+};
+
+function translateName(nameHe, lang) {
+  if (lang !== 'en') return nameHe;
+  return NAME_EN[nameHe] ?? nameHe;
+}
+
+// Extract numeric Dan value for sorting (e.g. "דאן 4" → 4, fallback 0)
+function getDanNumber(rankHe) {
+  const m = rankHe.match(/דאן\s+(\d+)/);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
 // Parse filenames like "איציק טרבלסי - דאן 2.jpeg" → { name, rankHe, img }
+// Sorted descending by Dan number
 const dynamicMembers = rosterFiles
   .filter(f => f.includes(' - '))
   .map(filename => {
@@ -30,15 +56,24 @@ const dynamicMembers = rosterFiles
     const name = stem.slice(0, dashIdx).trim();
     const rankHe = stem.slice(dashIdx + 3).trim();
     return { name, rankHe, img: `/צוות/${encodeURIComponent(filename)}` };
-  });
+  })
+  .sort((a, b) => getDanNumber(b.rankHe) - getDanNumber(a.rankHe));
+
+// Names that need object-top (heads near top of photo)
+const OBJECT_TOP_NAMES = new Set(["אדיר כהן", "חיים לוי", "רועי זיוון"]);
+
+function getObjectPosition(name) {
+  if (name === "איציק טרבלסי") return "center";
+  if (OBJECT_TOP_NAMES.has(name)) return "top";
+  return "bottom";
+}
 
 // ============================================================
 // FullTeam.jsx — Full International Instruction Team Page
-// Contexts: ThemeContext · LangContext · NavigationContext
 // ============================================================
 
 function useTheme() { return useContext(ThemeContext); }
-function useLang() { return useContext(LangContext); }
+function useLang()  { return useContext(LangContext); }
 function useNavigation() { return useContext(NavigationContext); }
 
 // ── Intersection-observer fade-in ──────────────────────────
@@ -71,7 +106,7 @@ function FadeIn({ children, delay = 0 }) {
     );
 }
 
-// ── Language toggle (mirrors App.jsx) ──────────────────────
+// ── Language toggle ────────────────────────────────────────
 function LangToggle() {
     const { lang, setLang } = useLang();
     const { theme, isDark } = useTheme();
@@ -95,7 +130,7 @@ function LangToggle() {
     );
 }
 
-// ── Theme toggle (mirrors App.jsx) ─────────────────────────
+// ── Theme toggle ───────────────────────────────────────────
 function ThemeToggle() {
     const { isDark, toggle } = useTheme();
     const { t } = useLang();
@@ -130,11 +165,10 @@ function ThemeToggle() {
     );
 }
 
-// ── Featured card — Grand Master ───────────────────────────
-function FeaturedTeamCard({ member }) {
-    const { theme, isDark } = useTheme();
+// ── Featured card (Grand Master) — mirrors homepage exactly ─
+function FeaturedMemberCard({ m, isDark, theme }) {
     const [imgError, setImgError] = useState(false);
-    const initials = member.name.split(" ").map(n => n[0]).join("").slice(0, 2);
+    const initials = m.name.split(" ").map(n => n[0]).join("").slice(0, 2);
     const glowBase = `0 0 0 1px rgba(196,30,58,0.25), 0 0 56px rgba(196,30,58,0.1), 0 20px 56px rgba(0,0,0,${isDark ? 0.45 : 0.1})`;
     const glowHover = `0 0 0 1px rgba(196,30,58,0.6), 0 0 64px rgba(196,30,58,0.2), 0 24px 64px rgba(0,0,0,${isDark ? 0.55 : 0.14})`;
 
@@ -142,7 +176,7 @@ function FeaturedTeamCard({ member }) {
         <div
             className="ft-featured-card"
             style={{
-                maxWidth: 740, margin: "0 auto 40px",
+                maxWidth: 740, margin: "0 auto",
                 borderRadius: 12, overflow: "hidden",
                 border: "1px solid rgba(212,175,55,0.3)",
                 boxShadow: glowBase,
@@ -153,7 +187,6 @@ function FeaturedTeamCard({ member }) {
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = glowHover; }}
             onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = glowBase; }}
         >
-            {/* Photo */}
             <div className="ft-featured-photo" style={{
                 width: 280, flexShrink: 0, position: "relative",
                 background: isDark ? "#141414" : "#E0E0E0",
@@ -161,7 +194,7 @@ function FeaturedTeamCard({ member }) {
                 overflow: "hidden",
             }}>
                 {!imgError ? (
-                    <img src={member.img} alt={member.name} onError={() => setImgError(true)}
+                    <img src={m.img} alt={m.name} onError={() => setImgError(true)}
                         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "bottom", display: "block" }} />
                 ) : (
                     <div style={{
@@ -177,15 +210,13 @@ function FeaturedTeamCard({ member }) {
                     background: theme.red, color: "#FFFFFF",
                     fontFamily: "'Heebo', sans-serif", fontSize: 12, fontWeight: 700,
                     padding: "4px 12px", borderRadius: 3,
-                }}>{member.rank}</span>
+                }}>{m.rank}</span>
                 <div style={{
                     position: "absolute", bottom: 0, left: 0, right: 0, height: 90,
                     background: "linear-gradient(to top, rgba(212,175,55,0.12), transparent)",
                     pointerEvents: "none",
                 }} />
             </div>
-
-            {/* Text */}
             <div style={{ padding: "32px 28px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <span style={{
                     display: "block", marginBottom: 14,
@@ -196,33 +227,102 @@ function FeaturedTeamCard({ member }) {
                 <div style={{
                     fontFamily: "'Heebo', sans-serif", fontSize: 13,
                     color: theme.red, fontWeight: 700, marginBottom: 16, letterSpacing: 0.3,
-                }}>{member.role}</div>
+                }}>{m.role}</div>
                 <p style={{
                     fontFamily: "'Heebo', sans-serif", fontSize: 15,
                     color: theme.sectionTeamText, lineHeight: 1.8, margin: 0,
-                }}>{member.desc}</p>
+                }}>{m.desc}</p>
             </div>
         </div>
     );
 }
 
-// ── Regular member card ─────────────────────────────────────
-function TeamMemberCard({ member }) {
-    const { theme, isDark } = useTheme();
+// ── Leading Team member card — mirrors homepage MemberCard ──
+function LeadingMemberCard({ m, isDark, theme }) {
     const [imgError, setImgError] = useState(false);
-    const initials = member.name.split(" ").map(n => n[0]).join("").slice(0, 2);
+    const initials = m.name.split(" ").map(n => n[0]).join("").slice(0, 2);
 
     return (
         <div
             style={{
                 borderRadius: 8, overflow: "hidden",
                 border: `1px solid ${theme.sectionTeamBorder}`,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                height: "100%", display: "flex", flexDirection: "column",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+        >
+            <div className="ft-leading-photo" style={{
+                height: 220, position: "relative",
+                background: isDark ? "#141414" : "#E5E5E5",
+                display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
+            }}>
+                {!imgError ? (
+                    <img
+                        src={m.img}
+                        alt={m.name}
+                        onError={() => setImgError(true)}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "bottom" }}
+                    />
+                ) : (
+                    <div style={{
+                        width: 80, height: 80, borderRadius: "50%",
+                        background: isDark ? "#1F1F1F" : "#D1D5DB", border: `2px solid ${theme.red}`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontFamily: "'Heebo', sans-serif", fontSize: 24, fontWeight: 900, color: theme.red,
+                    }}>{initials}</div>
+                )}
+                <span style={{
+                    position: "absolute", top: 12, left: 12,
+                    background: theme.red, color: "#FFFFFF",
+                    fontFamily: "'Heebo', sans-serif", fontSize: 12, fontWeight: 700,
+                    padding: "4px 12px", borderRadius: 3,
+                }}>{m.rank}</span>
+            </div>
+            <div className="ft-leading-body" style={{ padding: "24px 20px", background: theme.sectionTeamCardBg, flex: 1 }}>
+                <h3 className="ft-leading-name" style={{
+                    fontFamily: "'Heebo', sans-serif", fontWeight: 800,
+                    fontSize: 18, color: theme.sectionTeamText, margin: "0 0 4px",
+                }}>{m.name}</h3>
+                <div className="ft-leading-role" style={{
+                    fontFamily: "'Heebo', sans-serif", fontSize: 13,
+                    color: theme.red, fontWeight: 600, marginBottom: 12,
+                }}>{m.role}</div>
+                <p className="ft-leading-desc" style={{
+                    fontFamily: "'Heebo', sans-serif", fontSize: 14,
+                    color: theme.textSecondary, lineHeight: 1.6, margin: 0,
+                }}>{m.desc}</p>
+            </div>
+        </div>
+    );
+}
+
+// ── Dynamic instructor card (from /צוות/) ──────────────────
+function DynamicMemberCard({ member }) {
+    const { theme, isDark } = useTheme();
+    const [imgError, setImgError] = useState(false);
+    const initials = member.name.split(" ").map(n => n[0]).join("").slice(0, 2);
+    // Always use Hebrew source name for alignment so toggling language doesn't break it
+    const objectPos = getObjectPosition(member.nameHe ?? member.name);
+
+    return (
+        <div
+            style={{
+                borderRadius: 10, overflow: "hidden",
+                border: `1px solid ${theme.sectionTeamBorder}`,
                 background: theme.sectionTeamCardBg,
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
                 height: "100%", display: "flex", flexDirection: "column",
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = `0 16px 40px rgba(0,0,0,${isDark ? 0.4 : 0.12})`; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+            onMouseEnter={e => {
+                e.currentTarget.style.transform = "translateY(-5px)";
+                e.currentTarget.style.boxShadow = `0 16px 40px rgba(0,0,0,${isDark ? 0.45 : 0.14}), 0 0 0 1px rgba(196,30,58,0.25)`;
+            }}
+            onMouseLeave={e => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+            }}
         >
             <div className="ft-member-photo" style={{
                 height: 220, position: "relative",
@@ -231,8 +331,17 @@ function TeamMemberCard({ member }) {
                 overflow: "hidden", flexShrink: 0,
             }}>
                 {!imgError ? (
-                    <img src={member.img} alt={member.name} onError={() => setImgError(true)}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: member.name.includes("איציק טרבלסי") ? "center" : "bottom", display: "block" }} />
+                    <img
+                        src={member.img}
+                        alt={member.name}
+                        onError={() => setImgError(true)}
+                        style={{
+                            width: "100%", height: "100%",
+                            objectFit: "cover",
+                            objectPosition: objectPos,
+                            display: "block",
+                        }}
+                    />
                 ) : (
                     <div style={{
                         width: 72, height: 72, borderRadius: "50%",
@@ -242,27 +351,46 @@ function TeamMemberCard({ member }) {
                         fontFamily: "'Heebo', sans-serif", fontSize: 22, fontWeight: 900, color: theme.red,
                     }}>{initials}</div>
                 )}
-                <span style={{
-                    position: "absolute", top: 12, left: 12,
-                    background: theme.red, color: "#FFFFFF",
-                    fontFamily: "'Heebo', sans-serif", fontSize: 11, fontWeight: 700,
-                    padding: "3px 10px", borderRadius: 3,
-                }}>{member.rank}</span>
+                <div style={{
+                    position: "absolute", bottom: 0, left: 0, right: 0, height: 60,
+                    background: `linear-gradient(to top, ${isDark ? "rgba(20,20,20,0.55)" : "rgba(0,0,0,0.18)"}, transparent)`,
+                    pointerEvents: "none",
+                }} />
             </div>
 
-            <div className="ft-member-body" style={{ padding: "18px 16px", flex: 1 }}>
+            <div className="ft-member-body" style={{
+                padding: "16px 14px 18px", flex: 1,
+                display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
+            }}>
                 <h3 className="ft-member-name" style={{
                     fontFamily: "'Heebo', sans-serif", fontWeight: 800,
-                    fontSize: 16, color: theme.sectionTeamText, margin: "0 0 4px", lineHeight: 1.3,
+                    fontSize: 15, color: theme.sectionTeamText,
+                    margin: "0 0 10px", lineHeight: 1.3,
                 }}>{member.name}</h3>
-                <div className="ft-member-role" style={{
-                    fontFamily: "'Heebo', sans-serif", fontSize: 12,
-                    color: theme.red, fontWeight: 600, marginBottom: 10,
-                }}>{member.role}</div>
-                <p className="ft-member-desc" style={{
-                    fontFamily: "'Heebo', sans-serif", fontSize: 13,
-                    color: theme.textSecondary, lineHeight: 1.65, margin: 0,
-                }}>{member.desc}</p>
+
+                {/* Stylized rank subtitle */}
+                <div className="ft-member-rank-badge" style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    background: isDark
+                        ? "linear-gradient(135deg, rgba(196,30,58,0.18) 0%, rgba(196,30,58,0.08) 100%)"
+                        : "linear-gradient(135deg, rgba(196,30,58,0.1) 0%, rgba(196,30,58,0.04) 100%)",
+                    border: `1px solid rgba(196,30,58,0.35)`,
+                    borderRadius: 6,
+                    padding: "5px 12px",
+                }}>
+                    <span style={{
+                        width: 5, height: 5, borderRadius: "50%",
+                        background: theme.red, flexShrink: 0,
+                        boxShadow: `0 0 6px ${theme.red}`,
+                    }} />
+                    <span className="ft-member-rank-text" style={{
+                        fontFamily: "'Heebo', sans-serif",
+                        fontSize: 13, fontWeight: 700,
+                        color: theme.red,
+                        letterSpacing: 0.6,
+                        textTransform: "uppercase",
+                    }}>{member.rank}</span>
+                </div>
             </div>
         </div>
     );
@@ -298,32 +426,42 @@ function PlaceholderCard() {
     );
 }
 
+// ── Section divider label ───────────────────────────────────
+function SectionDivider({ label }) {
+    const { theme } = useTheme();
+    return (
+        <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "64px 0 40px" }}>
+            <div style={{ flex: 1, height: 1, background: theme.border }} />
+            <span style={{
+                fontFamily: "'Heebo', sans-serif", fontSize: 11, fontWeight: 700,
+                letterSpacing: 3, textTransform: "uppercase", color: theme.red,
+                whiteSpace: "nowrap",
+            }}>{label}</span>
+            <div style={{ flex: 1, height: 1, background: theme.border }} />
+        </div>
+    );
+}
+
 // ── Main page ───────────────────────────────────────────────
 export default function FullTeamPage() {
     const { theme, isDark } = useTheme();
     const { t, lang } = useLang();
     const { navigate } = useNavigation();
     const PLACEHOLDER_COUNT = 6;
-    const [featured, ...hardcodedMembers] = t.team.members;
 
-    // Merge hardcoded rest + dynamic members from /public/צוות
-    // Deduplicate: skip dynamic entries whose name already appears in hardcoded list
-    const hardcodedNames = new Set(hardcodedMembers.map(m => m.name));
-    const extraMembers = dynamicMembers
-      .filter(dm => !hardcodedNames.has(dm.name))
-      .map(dm => ({
-        name: dm.name,
+    const [featured, ...leadingRest] = t.team.members;
+
+    const dynamicCards = dynamicMembers.map(dm => ({
+        nameHe: dm.name,
+        name: translateName(dm.name, lang),
         rank: translateRank(dm.rankHe, lang),
-        role: translateRank(dm.rankHe, lang),
-        desc: '',
         img: dm.img,
-      }));
-    const restMembers = [...hardcodedMembers, ...extraMembers];
+    }));
 
     return (
         <div style={{ minHeight: "100vh", background: theme.bg, transition: "background 0.4s ease" }}>
 
-            {/* ── Sticky top bar ────────────────────────── */}
+            {/* ── Sticky top bar ──────────────────────────── */}
             <div style={{
                 position: "sticky", top: 0, zIndex: 100,
                 background: isDark ? "rgba(10,10,10,0.96)" : "rgba(255,255,255,0.96)",
@@ -335,7 +473,6 @@ export default function FullTeamPage() {
                     maxWidth: 1200, margin: "0 auto", height: 64,
                     display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
                 }}>
-                    {/* Back button */}
                     <button
                         onClick={() => navigate("home")}
                         style={{
@@ -357,13 +494,11 @@ export default function FullTeamPage() {
                         <span className="ft-back-label">{t.team.backHome}</span>
                     </button>
 
-                    {/* Center: TKM logo text */}
                     <span style={{
                         fontFamily: "'Heebo', sans-serif", fontWeight: 900,
                         fontSize: 18, color: theme.text, letterSpacing: 1,
                     }}>TKM</span>
 
-                    {/* Right: Lang + Theme controls */}
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                         <LangToggle />
                         <ThemeToggle />
@@ -371,7 +506,7 @@ export default function FullTeamPage() {
                 </div>
             </div>
 
-            {/* ── Page header ───────────────────────────── */}
+            {/* ── Page header ─────────────────────────────── */}
             <div style={{ padding: "72px 24px 48px", textAlign: "center", position: "relative" }}>
                 <div style={{
                     position: "absolute", top: 0, left: 0, right: 0, height: 1,
@@ -396,65 +531,100 @@ export default function FullTeamPage() {
                 </FadeIn>
             </div>
 
-            {/* ── Content ───────────────────────────────── */}
+            {/* ── Content ─────────────────────────────────── */}
             <div style={{ padding: "0 24px 96px" }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
-                    {/* Featured: Grand Master Erez Sharaby */}
-                    <FadeIn delay={0.1}>
-                        <FeaturedTeamCard member={featured} />
+                    {/* ═══ TOP: Leading Team (mirrors homepage) ═══ */}
+                    <FadeIn delay={0.05}>
+                        <SectionDivider label={lang === "he" ? "הצוות המוביל" : "Leading Team"} />
                     </FadeIn>
 
-                    {/* Rest of team + placeholder slots */}
+                    <FadeIn delay={0.1}>
+                        <div style={{ marginBottom: 36 }}>
+                            <FeaturedMemberCard m={featured} isDark={isDark} theme={theme} />
+                        </div>
+                    </FadeIn>
+
+                    <div className="leading-3-grid" style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(3, 1fr)",
+                        gap: 24,
+                        maxWidth: 900,
+                        margin: "0 auto",
+                    }}>
+                        {leadingRest.map((m, i) => (
+                            <FadeIn key={`lead-${i}`} delay={i * 0.08}>
+                                <LeadingMemberCard m={m} isDark={isDark} theme={theme} />
+                            </FadeIn>
+                        ))}
+                    </div>
+
+                    {/* ═══ BOTTOM: Dynamic instructors from /צוות/ ═══ */}
+                    <FadeIn delay={0.05}>
+                        <SectionDivider label={lang === "he" ? "כלל המדריכים" : "All Instructors"} />
+                    </FadeIn>
+
                     <div className="full-team-grid" style={{
                         display: "grid",
                         gridTemplateColumns: "repeat(4, 1fr)",
                         gap: 24,
                     }}>
-                        {restMembers.map((m, i) => (
-                            <FadeIn key={i} delay={i * 0.08}>
-                                <TeamMemberCard member={m} />
+                        {dynamicCards.map((m, i) => (
+                            <FadeIn key={`dyn-${i}`} delay={i * 0.07}>
+                                <DynamicMemberCard member={m} />
                             </FadeIn>
                         ))}
                         {Array.from({ length: PLACEHOLDER_COUNT }).map((_, i) => (
-                            <FadeIn key={`ph-${i}`} delay={(restMembers.length + i) * 0.06}>
+                            <FadeIn key={`ph-${i}`} delay={(dynamicCards.length + i) * 0.05}>
                                 <PlaceholderCard />
                             </FadeIn>
                         ))}
                     </div>
+
                 </div>
             </div>
 
-            {/* ── Responsive styles ─────────────────────── */}
+            {/* ── Responsive styles ───────────────────────── */}
             <style>{`
                 /* Desktop: 4-col → 3-col at 1100px */
                 @media (max-width: 1100px) {
                     .full-team-grid { grid-template-columns: repeat(3, 1fr) !important; }
                 }
 
-                /* Mobile: 3-col with compact card content */
+                /* Mobile: strict 3-col */
                 @media (max-width: 768px) {
                     .full-team-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+                    .leading-3-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; max-width: 100% !important; }
 
-                    /* Compact photo height */
-                    .ft-member-photo { height: 150px !important; }
+                    /* Dynamic card photo */
+                    .ft-member-photo { height: 130px !important; }
+                    .ft-member-body { padding: 7px 6px 10px !important; }
+                    .ft-member-name { font-size: 10px !important; line-height: 1.25 !important; margin-bottom: 6px !important; }
+                    .ft-member-rank-badge { padding: 3px 7px !important; border-radius: 4px !important; }
+                    .ft-member-rank-text { font-size: 10px !important; letter-spacing: 0.3px !important; }
 
-                    /* Compact card body */
-                    .ft-member-body { padding: 8px 7px !important; }
-                    .ft-member-name { font-size: 11px !important; line-height: 1.3 !important; }
-                    .ft-member-role { font-size: 10px !important; margin-bottom: 0 !important; }
-                    .ft-member-desc { display: none !important; }
+                    /* Leading card compact */
+                    .ft-leading-photo { height: 130px !important; }
+                    .ft-leading-body { padding: 8px 7px !important; }
+                    .ft-leading-name { font-size: 11px !important; }
+                    .ft-leading-role { font-size: 10px !important; margin-bottom: 0 !important; }
+                    .ft-leading-desc { display: none !important; }
 
-                    /* Featured card stacks vertically */
+                    /* Featured card stacks */
                     .ft-featured-card { flex-direction: column !important; max-width: 100% !important; }
                     .ft-featured-photo { width: 100% !important; min-height: 260px !important; }
 
-                    /* Shorten back-button label on very small screens */
                     .ft-back-label { display: none; }
                 }
 
                 @media (max-width: 480px) {
                     .ft-back-label { display: none; }
+                    .ft-member-photo { height: 110px !important; }
+                    .ft-leading-photo { height: 110px !important; }
+                    .ft-member-name { font-size: 9px !important; }
+                    .ft-member-rank-text { font-size: 9px !important; }
+                    .ft-leading-name { font-size: 9px !important; }
                 }
             `}</style>
         </div>
