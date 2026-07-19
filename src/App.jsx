@@ -62,6 +62,19 @@ const themes = {
     },
 };
 
+// --- Instructor photo paths (language-independent) ---
+const encPath = (folder, file) => `/${encodeURIComponent(folder)}/${encodeURIComponent(file)}`;
+const EREZ_IMAGES = [
+    "WhatsApp Image 2026-03-13 at 23.50.54.jpeg",
+    "WhatsApp Image 2026-03-14 at 19.58.13.jpeg",
+    "WhatsApp Image 2026-03-14 at 3646436.jpeg",
+    "img3.jpg.jpeg",
+    "img4.jpg.jpeg",
+].map(f => encPath("erez", f));
+const HAIM_IMG = encPath("צוות", "חיים נחום.jpeg");
+const ELIRAN_D_IMG = encPath("צוות", "אלירן דובזינסקי.jpeg");
+const ELIRAN_C_IMG = encPath("צוות", "אלירן כהן.jpeg");
+
 // --- Translation dictionary ---
 const translations = {
     he: {
@@ -127,10 +140,10 @@ const translations = {
             fullTeamSub: "הצוות המלא",
             fullTeamTitle: "צוות ההדרכה הבינלאומי",
             members: [
-                { name: "גראנד מאסטר ארז שרעבי", rank: "דאן 8", role: "מאמן ראשי ומייסד", desc: "גראנד מאסטר ארז שרעבי - מייסד וראש ארגון TKM. מאמן ראשי בדרגת דאן 8, בעל ניסיון של עשרות שנים בהכשרת דורות של לוחמים ומדריכים. מומחה רב-תחומי באמנויות לחימה: מדריך מוסמך בג'יו-ג'יטסו ברזילאי (BJJ) וחגורה חומה, ובעל רקע נרחב ומעמיק באיגרוף קלאסי ובאיגרוף תאילנדי.", img: "/member-1.jpg" },
-                { name: "חיים נחום", rank: "דאן 6", role: "מאמן סניף מתן", desc: "מייסד ומדריך ראשי בסניף מתן. מתאמן מ-1990 אצל אלי אביקזר ז\"ל.", img: "/member-2.jpg" },
-                { name: "אלירן דובז'ינסקי", rank: "דאן 5", role: "מדריך סניף אבן יהודה", desc: "מתאמן מ-1991. לשעבר מדריך קרב מגע במשטרת ישראל. מעביר סמינרים בארץ ובעולם.", img: "/member-3.jpg" },
-                { name: "אלירן כהן", rank: "דאן 4", role: "מדריך ראשי סניף ניו-יורק", desc: "מתאמן מ-1988 אצל אלי אביקזר ז\"ל. שירת כמדריך קרב מגע בחיל הים.", img: "/member-4.jpg" },
+                { name: "גראנד מאסטר ארז שרעבי", rank: "דאן 8", role: "מאמן ראשי ומייסד", desc: "גראנד מאסטר ארז שרעבי - מייסד וראש ארגון TKM. מאמן ראשי בדרגת דאן 8, בעל ניסיון של עשרות שנים בהכשרת דורות של לוחמים ומדריכים. מומחה רב-תחומי באמנויות לחימה: מדריך מוסמך בג'יו-ג'יטסו ברזילאי (BJJ) וחגורה חומה, ובעל רקע נרחב ומעמיק באיגרוף קלאסי ובאיגרוף תאילנדי.", img: EREZ_IMAGES[0], images: EREZ_IMAGES },
+                { name: "חיים נחום", rank: "דאן 6", role: "מאמן סניף מתן", desc: "מייסד ומדריך ראשי בסניף מתן. מתאמן מ-1990 אצל אלי אביקזר ז\"ל.", img: HAIM_IMG },
+                { name: "אלירן דובז'ינסקי", rank: "דאן 5", role: "מדריך סניף אבן יהודה", desc: "מתאמן מ-1991. לשעבר מדריך קרב מגע במשטרת ישראל. מעביר סמינרים בארץ ובעולם.", img: ELIRAN_D_IMG },
+                { name: "אלירן כהן", rank: "דאן 4", role: "מדריך ראשי סניף ניו-יורק", desc: "מתאמן מ-1988 אצל אלי אביקזר ז\"ל. שירת כמדריך קרב מגע בחיל הים.", img: ELIRAN_C_IMG },
             ],
         },
         activities: {
@@ -222,10 +235,10 @@ const translations = {
             fullTeamSub: "Full Team",
             fullTeamTitle: "International Instruction Team",
             members: [
-                { name: "Grand Master Erez Sharaby", rank: "Dan 8", role: "Head Coach & Founder", desc: "Grand Master Erez Sharaby - Founder and Head of TKM. A Senior Head Coach with an 8th Degree Black Belt (Dan 8). A multi-disciplinary martial arts expert: Certified Brazilian Jiu-Jitsu (BJJ) Instructor and Brown Belt, with an extensive and profound background in Classical Boxing and Muay Thai.", img: "/member-1.jpg" },
-                { name: "Haim Nahum", rank: "Dan 6", role: "Head of Matan Branch", desc: "Founder and head instructor of the Matan branch. Training since 1990 with Eli Avigzar z\"l.", img: "/member-2.jpg" },
-                { name: "Eliran Dubzhinski", rank: "Dan 5", role: "Instructor, Even Yehuda", desc: "Training since 1991. Former Krav Maga instructor for the Israel Police. Conducts seminars in Israel and worldwide.", img: "/member-3.jpg" },
-                { name: "Eliran Cohen", rank: "Dan 4", role: "Head Instructor, New York", desc: "Training since 1988 with Eli Avigzar z\"l. Served as Krav Maga instructor in the Israeli Navy.", img: "/member-4.jpg" },
+                { name: "Grand Master Erez Sharaby", rank: "Dan 8", role: "Head Coach & Founder", desc: "Grand Master Erez Sharaby - Founder and Head of TKM. A Senior Head Coach with an 8th Degree Black Belt (Dan 8). A multi-disciplinary martial arts expert: Certified Brazilian Jiu-Jitsu (BJJ) Instructor and Brown Belt, with an extensive and profound background in Classical Boxing and Muay Thai.", img: EREZ_IMAGES[0], images: EREZ_IMAGES },
+                { name: "Haim Nahum", rank: "Dan 6", role: "Head of Matan Branch", desc: "Founder and head instructor of the Matan branch. Training since 1990 with Eli Avigzar z\"l.", img: HAIM_IMG },
+                { name: "Eliran Dubzhinski", rank: "Dan 5", role: "Instructor, Even Yehuda", desc: "Training since 1991. Former Krav Maga instructor for the Israel Police. Conducts seminars in Israel and worldwide.", img: ELIRAN_D_IMG },
+                { name: "Eliran Cohen", rank: "Dan 4", role: "Head Instructor, New York", desc: "Training since 1988 with Eli Avigzar z\"l. Served as Krav Maga instructor in the Israeli Navy.", img: ELIRAN_C_IMG },
             ],
         },
         activities: {
@@ -441,7 +454,12 @@ function Navbar() {
                 maxWidth: 1200, margin: "0 auto",
                 display: "flex", alignItems: "center", justifyContent: "space-between", height: 96,
             }}>
-                <a href="#hero" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+                <a href="#hero" style={{
+                    textDecoration: "none", display: "flex", alignItems: "center", gap: 12, flexShrink: 0,
+                    opacity: scrolled ? 1 : 0,
+                    pointerEvents: scrolled ? "auto" : "none",
+                    transition: "opacity 0.3s ease",
+                }}>
                     <span style={{
                         fontFamily: "'Heebo', sans-serif", fontWeight: 800, fontSize: 28,
                         color: theme.text, letterSpacing: 1,
@@ -666,7 +684,7 @@ function makeImgList(folder, files) {
     return files.map(f => `/${encodeURIComponent(folder)}/${encodeURIComponent(f)}`);
 }
 
-function ImageSlideshow({ images, isHovered }) {
+function ImageSlideshow({ images, isHovered, objectPosition = "bottom" }) {
     const [activeImg, setActiveImg] = useState(0);
     const [loaded, setLoaded] = useState({});
 
@@ -695,7 +713,7 @@ function ImageSlideshow({ images, isHovered }) {
                         onError={() => setLoaded(prev => ({ ...prev, [i]: false }))}
                         style={{
                             width: "100%", height: "100%",
-                            objectFit: "cover", objectPosition: "bottom",
+                            objectFit: "cover", objectPosition,
                             display: "block",
                         }}
                     />
@@ -1058,7 +1076,7 @@ function MemberPhoto({ member, isDark, theme }) {
                     src={member.img}
                     alt={member.name}
                     onError={() => setImgError(true)}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: member.name.includes("איציק טרבלסי") ? "center" : "bottom" }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
                 />
             ) : (
                 <div style={{
@@ -1112,9 +1130,11 @@ function MemberCard({ m, isDark, theme }) {
 
 function FeaturedMemberCard({ m, isDark, theme }) {
     const [imgError, setImgError] = useState(false);
+    const [hovered, setHovered] = useState(false);
     const initials = m.name.split(" ").map(n => n[0]).join("").slice(0, 2);
     const glowBase = `0 0 0 1px rgba(196,30,58,0.25), 0 0 56px rgba(196,30,58,0.1), 0 20px 56px rgba(0,0,0,${isDark ? 0.45 : 0.1})`;
     const glowHover = `0 0 0 1px rgba(196,30,58,0.6), 0 0 64px rgba(196,30,58,0.2), 0 24px 64px rgba(0,0,0,${isDark ? 0.55 : 0.14})`;
+    const hasSlideshow = Array.isArray(m.images) && m.images.length > 0;
 
     return (
         <div
@@ -1128,8 +1148,8 @@ function FeaturedMemberCard({ m, isDark, theme }) {
                 display: "flex",
                 transition: "transform 0.35s ease, box-shadow 0.35s ease",
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = glowHover; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = glowBase; }}
+            onMouseEnter={e => { setHovered(true); e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = glowHover; }}
+            onMouseLeave={e => { setHovered(false); e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = glowBase; }}
         >
             {/* ── Photo panel ── */}
             <div className="featured-photo-panel" style={{
@@ -1138,7 +1158,9 @@ function FeaturedMemberCard({ m, isDark, theme }) {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 overflow: "hidden",
             }}>
-                {!imgError ? (
+                {hasSlideshow ? (
+                    <ImageSlideshow images={m.images} isHovered={hovered} objectPosition="top center" />
+                ) : !imgError ? (
                     <img src={m.img} alt={m.name} onError={() => setImgError(true)}
                         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: m.name.includes("איציק טרבלסי") ? "center" : "bottom", display: "block" }} />
                 ) : (
