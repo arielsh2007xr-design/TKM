@@ -1039,7 +1039,7 @@ function MemberPhoto({ member, isDark, theme, isHovered }) {
                     onError={() => setImgError(true)}
                     style={{
                         width: "100%", height: "100%", objectFit: "cover",
-                        objectPosition: zoomFace ? "center 15%" : "top center",
+                        objectPosition: zoomFace ? "center 25%" : "top center",
                         transform: zoomFace ? `scale(${isHovered ? 1.5 : 1.4})` : "none",
                         transition: "transform 0.4s ease",
                     }}
