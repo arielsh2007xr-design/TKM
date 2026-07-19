@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { ThemeContext, LangContext, NavigationContext } from "./contexts";
 import FullTeamPage from "./FullTeam";
+import ImageSlideshow from "./ImageSlideshow";
 
 // ============================================================
 // TKM - Traditional Krav Maga — One Page Website
@@ -64,13 +65,16 @@ const themes = {
 
 // --- Instructor photo paths (language-independent) ---
 const encPath = (folder, file) => `/${encodeURIComponent(folder)}/${encodeURIComponent(file)}`;
-const EREZ_IMAGES = [
-    "WhatsApp Image 2026-03-13 at 23.50.54.jpeg",
+const EREZ_FILES = [
     "WhatsApp Image 2026-03-14 at 19.58.13.jpeg",
     "WhatsApp Image 2026-03-14 at 3646436.jpeg",
     "img3.jpg.jpeg",
     "img4.jpg.jpeg",
-].map(f => encPath("erez", f));
+    "אורך.jpeg",
+];
+const EREZ_IMAGES = EREZ_FILES.map(f => encPath("erez", f));
+// Per-image object-position: the tall "אורך" portrait shows its middle; others show the top (face).
+const EREZ_POSITIONS = EREZ_FILES.map(f => (f.includes("אורך") ? "center 40%" : "top center"));
 const HAIM_IMG = encPath("צוות", "חיים נחום.jpeg");
 const ELIRAN_D_IMG = encPath("צוות", "אלירן דובזינסקי.jpeg");
 const ELIRAN_C_IMG = encPath("צוות", "אלירן כהן.jpeg");
@@ -140,9 +144,9 @@ const translations = {
             fullTeamSub: "הצוות המלא",
             fullTeamTitle: "צוות ההדרכה הבינלאומי",
             members: [
-                { name: "גראנד מאסטר ארז שרעבי", rank: "דאן 8", role: "מאמן ראשי ומייסד", desc: "גראנד מאסטר ארז שרעבי - מייסד וראש ארגון TKM. מאמן ראשי בדרגת דאן 8, בעל ניסיון של עשרות שנים בהכשרת דורות של לוחמים ומדריכים. מומחה רב-תחומי באמנויות לחימה: מדריך מוסמך בג'יו-ג'יטסו ברזילאי (BJJ) וחגורה חומה, ובעל רקע נרחב ומעמיק באיגרוף קלאסי ובאיגרוף תאילנדי.", img: EREZ_IMAGES[0], images: EREZ_IMAGES },
-                { name: "חיים נחום", rank: "דאן 6", role: "מאמן סניף מתן", desc: "מייסד ומדריך ראשי בסניף מתן. מתאמן מ-1990 אצל אלי אביקזר ז\"ל.", img: HAIM_IMG },
-                { name: "אלירן דובז'ינסקי", rank: "דאן 5", role: "מדריך סניף אבן יהודה", desc: "מתאמן מ-1991. לשעבר מדריך קרב מגע במשטרת ישראל. מעביר סמינרים בארץ ובעולם.", img: ELIRAN_D_IMG },
+                { name: "גראנד מאסטר ארז שרעבי", rank: "דאן 8", role: "מאמן ראשי ומייסד", desc: "גראנד מאסטר ארז שרעבי - מייסד וראש ארגון TKM. מאמן ראשי בדרגת דאן 8, בעל ניסיון של עשרות שנים בהכשרת דורות של לוחמים ומדריכים. מומחה רב-תחומי באמנויות לחימה: מדריך מוסמך בג'יו-ג'יטסו ברזילאי (BJJ) וחגורה חומה, ובעל רקע נרחב ומעמיק באיגרוף קלאסי ובאיגרוף תאילנדי.", img: EREZ_IMAGES[0], images: EREZ_IMAGES, positions: EREZ_POSITIONS },
+                { name: "חיים נחום", rank: "דאן 6", role: "מאמן סניף מתן", desc: "מייסד ומדריך ראשי בסניף מתן. מתאמן מ-1990 אצל אלי אביקזר ז\"ל.", img: HAIM_IMG, zoomFace: true },
+                { name: "אלירן דובז'ינסקי", rank: "דאן 5", role: "מדריך סניף אבן יהודה", desc: "מתאמן מ-1991. לשעבר מדריך קרב מגע במשטרת ישראל. מעביר סמינרים בארץ ובעולם.", img: ELIRAN_D_IMG, zoomFace: true },
                 { name: "אלירן כהן", rank: "דאן 4", role: "מדריך ראשי סניף ניו-יורק", desc: "מתאמן מ-1988 אצל אלי אביקזר ז\"ל. שירת כמדריך קרב מגע בחיל הים.", img: ELIRAN_C_IMG },
             ],
         },
@@ -235,9 +239,9 @@ const translations = {
             fullTeamSub: "Full Team",
             fullTeamTitle: "International Instruction Team",
             members: [
-                { name: "Grand Master Erez Sharaby", rank: "Dan 8", role: "Head Coach & Founder", desc: "Grand Master Erez Sharaby - Founder and Head of TKM. A Senior Head Coach with an 8th Degree Black Belt (Dan 8). A multi-disciplinary martial arts expert: Certified Brazilian Jiu-Jitsu (BJJ) Instructor and Brown Belt, with an extensive and profound background in Classical Boxing and Muay Thai.", img: EREZ_IMAGES[0], images: EREZ_IMAGES },
-                { name: "Haim Nahum", rank: "Dan 6", role: "Head of Matan Branch", desc: "Founder and head instructor of the Matan branch. Training since 1990 with Eli Avigzar z\"l.", img: HAIM_IMG },
-                { name: "Eliran Dubzhinski", rank: "Dan 5", role: "Instructor, Even Yehuda", desc: "Training since 1991. Former Krav Maga instructor for the Israel Police. Conducts seminars in Israel and worldwide.", img: ELIRAN_D_IMG },
+                { name: "Grand Master Erez Sharaby", rank: "Dan 8", role: "Head Coach & Founder", desc: "Grand Master Erez Sharaby - Founder and Head of TKM. A Senior Head Coach with an 8th Degree Black Belt (Dan 8). A multi-disciplinary martial arts expert: Certified Brazilian Jiu-Jitsu (BJJ) Instructor and Brown Belt, with an extensive and profound background in Classical Boxing and Muay Thai.", img: EREZ_IMAGES[0], images: EREZ_IMAGES, positions: EREZ_POSITIONS },
+                { name: "Haim Nahum", rank: "Dan 6", role: "Head of Matan Branch", desc: "Founder and head instructor of the Matan branch. Training since 1990 with Eli Avigzar z\"l.", img: HAIM_IMG, zoomFace: true },
+                { name: "Eliran Dubzhinski", rank: "Dan 5", role: "Instructor, Even Yehuda", desc: "Training since 1991. Former Krav Maga instructor for the Israel Police. Conducts seminars in Israel and worldwide.", img: ELIRAN_D_IMG, zoomFace: true },
                 { name: "Eliran Cohen", rank: "Dan 4", role: "Head Instructor, New York", desc: "Training since 1988 with Eli Avigzar z\"l. Served as Krav Maga instructor in the Israeli Navy.", img: ELIRAN_C_IMG },
             ],
         },
@@ -684,51 +688,6 @@ function makeImgList(folder, files) {
     return files.map(f => `/${encodeURIComponent(folder)}/${encodeURIComponent(f)}`);
 }
 
-function ImageSlideshow({ images, isHovered, objectPosition = "bottom" }) {
-    const [activeImg, setActiveImg] = useState(0);
-    const [loaded, setLoaded] = useState({});
-
-    useEffect(() => {
-        if (images.length < 2) return;
-        const timer = setInterval(() => setActiveImg(a => (a + 1) % images.length), 5000);
-        return () => clearInterval(timer);
-    }, [images.length]);
-
-    return (
-        <>
-            {images.map((src, i) => (
-                <div key={src} style={{
-                    position: "absolute", inset: 0, overflow: "hidden",
-                    opacity: i === activeImg ? 1 : 0,
-                    transition: "opacity 1.4s ease",
-                    transform: isHovered ? "scale(1.06)" : "scale(1.0)",
-                    transitionProperty: "opacity, transform",
-                    transitionDuration: "1.4s, 0.6s",
-                    transitionTimingFunction: "ease, cubic-bezier(0.16, 1, 0.3, 1)",
-                }}>
-                    <img
-                        src={src}
-                        alt=""
-                        onLoad={() => setLoaded(prev => ({ ...prev, [i]: true }))}
-                        onError={() => setLoaded(prev => ({ ...prev, [i]: false }))}
-                        style={{
-                            width: "100%", height: "100%",
-                            objectFit: "cover", objectPosition,
-                            display: "block",
-                        }}
-                    />
-                    {loaded[i] === false && (
-                        <div style={{
-                            position: "absolute", inset: 0,
-                            background: "linear-gradient(135deg, #1a0a0a 0%, #2a1010 50%, #1a0a0a 100%)",
-                        }} />
-                    )}
-                </div>
-            ))}
-        </>
-    );
-}
-
 function WhySection() {
     const { theme, isDark } = useTheme();
     const { t } = useLang();
@@ -1062,9 +1021,11 @@ function Branches() {
 // ============================================================
 // INSTRUCTORS SECTION
 // ============================================================
-function MemberPhoto({ member, isDark, theme }) {
+function MemberPhoto({ member, isDark, theme, isHovered }) {
     const [imgError, setImgError] = useState(false);
     const initials = member.name.split(" ").map(n => n[0]).join("").slice(0, 2);
+    // Eliran Dubzhinski & Haim Nahum need extra zoom + a higher focal point so the face fills the card.
+    const zoomFace = !!member.zoomFace;
     return (
         <div className="member-photo" style={{
             height: 220, position: "relative",
@@ -1076,7 +1037,12 @@ function MemberPhoto({ member, isDark, theme }) {
                     src={member.img}
                     alt={member.name}
                     onError={() => setImgError(true)}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
+                    style={{
+                        width: "100%", height: "100%", objectFit: "cover",
+                        objectPosition: zoomFace ? "center 15%" : "top center",
+                        transform: zoomFace ? `scale(${isHovered ? 1.5 : 1.4})` : "none",
+                        transition: "transform 0.4s ease",
+                    }}
                 />
             ) : (
                 <div style={{
@@ -1099,6 +1065,7 @@ function MemberPhoto({ member, isDark, theme }) {
 }
 
 function MemberCard({ m, isDark, theme }) {
+    const [isHovered, setHovered] = useState(false);
     return (
         <div style={{
             borderRadius: 8, overflow: "hidden",
@@ -1106,10 +1073,10 @@ function MemberCard({ m, isDark, theme }) {
             transition: "transform 0.3s, box-shadow 0.3s",
             height: "100%", display: "flex", flexDirection: "column",
         }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+            onMouseEnter={e => { setHovered(true); e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)"; }}
+            onMouseLeave={e => { setHovered(false); e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
         >
-            <MemberPhoto member={m} isDark={isDark} theme={theme} />
+            <MemberPhoto member={m} isDark={isDark} theme={theme} isHovered={isHovered} />
             <div className="member-body" style={{ padding: "24px 20px", background: theme.sectionTeamCardBg, flex: 1 }}>
                 <h3 className="member-name" style={{
                     fontFamily: "'Heebo', sans-serif", fontWeight: 800,
@@ -1159,7 +1126,7 @@ function FeaturedMemberCard({ m, isDark, theme }) {
                 overflow: "hidden",
             }}>
                 {hasSlideshow ? (
-                    <ImageSlideshow images={m.images} isHovered={hovered} objectPosition="top center" />
+                    <ImageSlideshow images={m.images} isHovered={hovered} objectPosition="top center" positions={m.positions} />
                 ) : !imgError ? (
                     <img src={m.img} alt={m.name} onError={() => setImgError(true)}
                         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: m.name.includes("איציק טרבלסי") ? "center" : "bottom", display: "block" }} />

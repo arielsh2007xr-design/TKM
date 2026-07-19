@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { ThemeContext, LangContext, NavigationContext } from "./contexts";
 import { rosterFiles } from "virtual:team-roster";
+import ImageSlideshow from "./ImageSlideshow";
 
 // ── Rank translation table (He → En) ──────────────────────
 const RANK_EN = {
@@ -168,9 +169,11 @@ function ThemeToggle() {
 // ── Featured card (Grand Master) — mirrors homepage exactly ─
 function FeaturedMemberCard({ m, isDark, theme }) {
     const [imgError, setImgError] = useState(false);
+    const [hovered, setHovered] = useState(false);
     const initials = m.name.split(" ").map(n => n[0]).join("").slice(0, 2);
     const glowBase = `0 0 0 1px rgba(196,30,58,0.25), 0 0 56px rgba(196,30,58,0.1), 0 20px 56px rgba(0,0,0,${isDark ? 0.45 : 0.1})`;
     const glowHover = `0 0 0 1px rgba(196,30,58,0.6), 0 0 64px rgba(196,30,58,0.2), 0 24px 64px rgba(0,0,0,${isDark ? 0.55 : 0.14})`;
+    const hasSlideshow = Array.isArray(m.images) && m.images.length > 0;
 
     return (
         <div
@@ -184,8 +187,8 @@ function FeaturedMemberCard({ m, isDark, theme }) {
                 display: "flex",
                 transition: "transform 0.35s ease, box-shadow 0.35s ease",
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = glowHover; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = glowBase; }}
+            onMouseEnter={e => { setHovered(true); e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = glowHover; }}
+            onMouseLeave={e => { setHovered(false); e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = glowBase; }}
         >
             <div className="ft-featured-photo" style={{
                 width: 280, flexShrink: 0, position: "relative",
@@ -193,7 +196,9 @@ function FeaturedMemberCard({ m, isDark, theme }) {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 overflow: "hidden",
             }}>
-                {!imgError ? (
+                {hasSlideshow ? (
+                    <ImageSlideshow images={m.images} isHovered={hovered} objectPosition="top center" positions={m.positions} />
+                ) : !imgError ? (
                     <img src={m.img} alt={m.name} onError={() => setImgError(true)}
                         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "bottom", display: "block" }} />
                 ) : (
@@ -240,7 +245,10 @@ function FeaturedMemberCard({ m, isDark, theme }) {
 // ── Leading Team member card — mirrors homepage MemberCard ──
 function LeadingMemberCard({ m, isDark, theme }) {
     const [imgError, setImgError] = useState(false);
+    const [isHovered, setHovered] = useState(false);
     const initials = m.name.split(" ").map(n => n[0]).join("").slice(0, 2);
+    // Match the homepage: Eliran Dubzhinski & Haim Nahum get extra zoom + a higher focal point.
+    const zoomFace = !!m.zoomFace;
 
     return (
         <div
@@ -250,8 +258,8 @@ function LeadingMemberCard({ m, isDark, theme }) {
                 transition: "transform 0.3s, box-shadow 0.3s",
                 height: "100%", display: "flex", flexDirection: "column",
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+            onMouseEnter={e => { setHovered(true); e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)"; }}
+            onMouseLeave={e => { setHovered(false); e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
         >
             <div className="ft-leading-photo" style={{
                 height: 220, position: "relative",
@@ -263,7 +271,12 @@ function LeadingMemberCard({ m, isDark, theme }) {
                         src={m.img}
                         alt={m.name}
                         onError={() => setImgError(true)}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "bottom" }}
+                        style={{
+                            width: "100%", height: "100%", objectFit: "cover",
+                            objectPosition: zoomFace ? "center 15%" : "top center",
+                            transform: zoomFace ? `scale(${isHovered ? 1.5 : 1.4})` : "none",
+                            transition: "transform 0.4s ease",
+                        }}
                     />
                 ) : (
                     <div style={{
