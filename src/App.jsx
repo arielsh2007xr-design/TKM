@@ -545,6 +545,18 @@ function Navbar() {
           .branch-icon { width: 26px !important; height: 26px !important; }
           .branch-contact { display: none !important; }
 
+          /* Rank badge — small cards are too short for a top-left badge,
+             so drop it to the bottom where it can't cover a face. */
+          .rank-badge {
+            top: auto !important; bottom: 6px !important; left: 6px !important;
+            font-size: 10px !important; padding: 2px 7px !important;
+            opacity: 0.9;
+          }
+          .rank-badge-featured {
+            top: 8px !important; left: 8px !important;
+            font-size: 10px !important; padding: 3px 8px !important;
+          }
+
           /* Instructors — compact for 3-col */
           .member-photo { height: 150px !important; }
           .member-body { padding: 8px 7px !important; }
@@ -1054,7 +1066,7 @@ function MemberPhoto({ member, isDark, theme, isHovered }) {
                     {initials}
                 </div>
             )}
-            <span style={{
+            <span className="rank-badge" style={{
                 position: "absolute", top: 12, left: 12,
                 background: C.red, color: C.white,
                 fontFamily: "'Heebo', sans-serif", fontSize: 12, fontWeight: 700,
@@ -1140,7 +1152,7 @@ function FeaturedMemberCard({ m, isDark, theme }) {
                     }}>{initials}</div>
                 )}
                 {/* Rank badge */}
-                <span style={{
+                <span className="rank-badge-featured" style={{
                     position: "absolute", top: 14, left: 14,
                     background: theme.red, color: "#FFFFFF",
                     fontFamily: "'Heebo', sans-serif", fontSize: 12, fontWeight: 700,

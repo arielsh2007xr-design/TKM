@@ -210,7 +210,7 @@ function FeaturedMemberCard({ m, isDark, theme }) {
                         fontFamily: "'Heebo', sans-serif", fontSize: 28, fontWeight: 900, color: theme.red,
                     }}>{initials}</div>
                 )}
-                <span style={{
+                <span className="rank-badge-featured" style={{
                     position: "absolute", top: 14, left: 14,
                     background: theme.red, color: "#FFFFFF",
                     fontFamily: "'Heebo', sans-serif", fontSize: 12, fontWeight: 700,
@@ -286,7 +286,7 @@ function LeadingMemberCard({ m, isDark, theme }) {
                         fontFamily: "'Heebo', sans-serif", fontSize: 24, fontWeight: 900, color: theme.red,
                     }}>{initials}</div>
                 )}
-                <span style={{
+                <span className="rank-badge" style={{
                     position: "absolute", top: 12, left: 12,
                     background: theme.red, color: "#FFFFFF",
                     fontFamily: "'Heebo', sans-serif", fontSize: 12, fontWeight: 700,
@@ -409,36 +409,6 @@ function DynamicMemberCard({ member }) {
     );
 }
 
-// ── Placeholder slot ────────────────────────────────────────
-function PlaceholderCard() {
-    const { theme, isDark } = useTheme();
-    return (
-        <div style={{
-            borderRadius: 8, overflow: "hidden",
-            border: `1px dashed ${theme.sectionTeamBorder}`,
-            background: theme.sectionTeamCardBg,
-            height: "100%", display: "flex", flexDirection: "column", minHeight: 280,
-        }}>
-            <div className="ft-member-photo" style={{
-                height: 220, background: isDark ? "#111111" : "#F0F0F0",
-                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
-                    stroke={isDark ? "#2A2A2A" : "#D1D5DB"}
-                    strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                </svg>
-            </div>
-            <div className="ft-member-body" style={{ padding: "18px 16px", flex: 1 }}>
-                <div style={{ height: 14, borderRadius: 3, background: isDark ? "#1F1F1F" : "#E5E5E5", marginBottom: 8, width: "55%" }} />
-                <div style={{ height: 11, borderRadius: 3, background: isDark ? "#1F1F1F" : "#EBEBEB", marginBottom: 12, width: "38%" }} />
-                <div style={{ height: 9, borderRadius: 3, background: isDark ? "#181818" : "#F0F0F0", width: "75%" }} />
-            </div>
-        </div>
-    );
-}
-
 // ── Section divider label ───────────────────────────────────
 function SectionDivider({ label }) {
     const { theme } = useTheme();
@@ -460,7 +430,6 @@ export default function FullTeamPage() {
     const { theme, isDark } = useTheme();
     const { t, lang } = useLang();
     const { navigate } = useNavigation();
-    const PLACEHOLDER_COUNT = 6;
 
     const [featured, ...leadingRest] = t.team.members;
 
@@ -583,14 +552,9 @@ export default function FullTeamPage() {
                         gridTemplateColumns: "repeat(4, 1fr)",
                         gap: 24,
                     }}>
-                        {dynamicCards.map((m, i) => (
+                        {dynamicCards.filter(m => m.name).map((m, i) => (
                             <FadeIn key={`dyn-${i}`} delay={i * 0.07}>
                                 <DynamicMemberCard member={m} />
-                            </FadeIn>
-                        ))}
-                        {Array.from({ length: PLACEHOLDER_COUNT }).map((_, i) => (
-                            <FadeIn key={`ph-${i}`} delay={(dynamicCards.length + i) * 0.05}>
-                                <PlaceholderCard />
                             </FadeIn>
                         ))}
                     </div>
@@ -616,6 +580,18 @@ export default function FullTeamPage() {
                     .ft-member-name { font-size: 10px !important; line-height: 1.25 !important; margin-bottom: 6px !important; }
                     .ft-member-rank-badge { padding: 3px 7px !important; border-radius: 4px !important; }
                     .ft-member-rank-text { font-size: 10px !important; letter-spacing: 0.3px !important; }
+
+                    /* Rank badge — small cards are too short for a top-left badge,
+                       so drop it to the bottom where it can't cover a face. */
+                    .rank-badge {
+                        top: auto !important; bottom: 6px !important; left: 6px !important;
+                        font-size: 10px !important; padding: 2px 7px !important;
+                        opacity: 0.9;
+                    }
+                    .rank-badge-featured {
+                        top: 8px !important; left: 8px !important;
+                        font-size: 10px !important; padding: 3px 8px !important;
+                    }
 
                     /* Leading card compact */
                     .ft-leading-photo { height: 130px !important; }
