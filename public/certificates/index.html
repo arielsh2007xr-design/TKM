@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>תעודות דרגה קרב מגע מסורתי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Bodoni+Moda:opsz,wght@6..96,700&family=Frank+Ruhl+Libre:wght@700&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#141010;color:#F4EBDD;font-family:'Heebo',sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+header img{width:56px;height:56px;border-radius:50%;background:#fff}
+h1{margin:0;font-size:24px;font-weight:700}
+header p{margin:2px 0 0;color:#CDBFA8;font-size:15px}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:#201918;border:1px solid #3a2c28;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:16px}
+label{font-weight:500;font-size:15px;display:block;margin-bottom:6px}
+input[type=text]{width:100%;font-size:18px;padding:12px;border-radius:10px;border:1px solid #5a4540;background:#FBF4E4;color:#111;font-family:'Heebo',sans-serif}
+.hint{font-size:13px;color:#BFAF98;margin-top:5px}
+.belts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.belt{min-height:46px;border-radius:10px;border:2px solid transparent;font-family:'Heebo',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.belt[aria-pressed="true"]{border-color:#FBF4E4;box-shadow:0 0 0 2px #8E1219}
+.go{min-height:52px;border:0;border-radius:12px;background:#8E1219;color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:'Heebo',sans-serif}
+.go:hover{background:#A3141D}
+.go:disabled{opacity:.6;cursor:wait}
+.status{font-size:14px;color:#E8D9C2;min-height:20px}
+.preview{background:#0c0909;border-radius:14px;padding:12px;border:1px solid #3a2c28}
+canvas{width:100%;height:auto;display:block;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.lang{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #8E1219;background:transparent;color:#F4EBDD;font-family:'Heebo',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.tips{font-size:14px;color:#CDBFA8;line-height:1.6;margin:0;padding-inline-start:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<img id="hdrLogo" alt="">
+<div style="flex:1"><h1 data-t="title"></h1><p data-t="sub"></p></div>
+<button type="button" class="lang" id="lang"></button>
+</header>
+<div class="grid">
+<form class="panel" id="form" autocomplete="off">
+<div>
+<label for="name" data-t="nameL"></label>
+<input type="text" id="name">
+<div class="hint" data-t="nameH"></div>
+</div>
+<div>
+<label for="date" data-t="dateL"></label>
+<input type="text" id="date" dir="ltr">
+<div class="hint" data-t="dateH"></div>
+</div>
+<div>
+<label id="beltLbl" data-t="beltL"></label>
+<div class="belts" role="group" aria-labelledby="beltLbl" id="belts"></div>
+</div>
+<button class="go" id="dl" type="submit" data-t="dl"></button>
+<div class="status" id="status" role="status"></div>
+<ul class="tips">
+<li data-t="t1"></li>
+<li data-t="t2"></li>
+<li data-t="t3"></li>
+</ul>
+</form>
+<div class="preview"><canvas id="cv" width="2246" height="1588" role="img"></canvas></div>
+</div>
+</div>
+<script>
+const LOGO="/certificates/logo.webp";
+const W=1123,H=794;
+const BELTS=[
+ {id:"yellow",he:"צהובה",enL:"Yellow",en:"YELLOW BELT",g:["#E8C766","#C99A22","#7E5A0C"],edge:"#5A3F06",fill:"#C99A22",btnText:"#1e1400"},
+ {id:"orange",he:"כתומה",enL:"Orange",en:"ORANGE BELT",g:["#E9965A","#C2581C","#76300A"],edge:"#4E1E05",fill:"#C2581C",btnText:"#fff"},
+ {id:"green",he:"ירוקה",enL:"Green",en:"GREEN BELT",g:["#4FA372","#1D6B3E","#0B3A20"],edge:"#062514",fill:"#1D6B3E",btnText:"#fff"},
+ {id:"blue",he:"כחולה",enL:"Blue",en:"BLUE BELT",g:["#557FCB","#1F4590","#0D2350"],edge:"#081638",fill:"#1F4590",btnText:"#fff"},
+ {id:"brown",he:"חומה",enL:"Brown",en:"BROWN BELT",g:["#A8734A","#6E4224","#3A2011"],edge:"#24140A",fill:"#6E4224",btnText:"#fff"},
+ {id:"black",he:"שחורה",enL:"Black",en:"BLACK BELT",g:["#4A4A4A","#161616","#000000"],edge:"#B8913F",fill:"#161616",btnText:"#fff"}
+];
+let belt=BELTS[0];
+const logo=new Image();logo.src=LOGO;
+const SIG="/certificates/sig.png";const sig=new Image();sig.onload=()=>render();sig.src=SIG;
+document.getElementById('hdrLogo').src=LOGO;
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const d=new Date();
+document.getElementById('date').value=String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+
+const beltsEl=document.getElementById('belts');
+BELTS.forEach(b=>{const btn=document.createElement('button');btn.type='button';btn.className='belt';btn.dataset.he=b.he;btn.dataset.en=b.enL;btn.textContent=b.he;btn.style.background=b.fill;btn.style.color=b.btnText;btn.setAttribute('aria-pressed',b===belt?'true':'false');btn.onclick=()=>{belt=b;[...beltsEl.children].forEach(c=>c.setAttribute('aria-pressed','false'));btn.setAttribute('aria-pressed','true');render();};beltsEl.appendChild(btn);});
+
+function spaced(ctx,text,x,y,sp,mode){
+ const chars=[...text];const ws=chars.map(c=>ctx.measureText(c).width);
+ const total=ws.reduce((a,b)=>a+b,0)+sp*(chars.length-1);
+ let cx=x-total/2;const al=ctx.textAlign;ctx.textAlign='left';
+ chars.forEach((c,i)=>{if(mode!=='fill')ctx.strokeText(c,cx,y);if(mode!=='stroke')ctx.fillText(c,cx,y);cx+=ws[i]+sp;});
+ ctx.textAlign=al;return total;
+}
+function wrap(ctx,text,maxW){const words=text.split(' ');const lines=[];let cur='';words.forEach(w=>{const t=cur?cur+' '+w:w;if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=w;}else cur=t;});if(cur)lines.push(cur);return lines;}
+const isHeb=s=>/[֐-׿]/.test(s);
+
+function draw(ctx,s){
+ ctx.save();ctx.setTransform(s,0,0,s,0,0);
+ // parchment
+ const g=ctx.createRadialGradient(561,357,0,561,357,760);
+ g.addColorStop(0,'#FBF4E4');g.addColorStop(.6,'#F1E5CA');g.addColorStop(1,'#E2D0AA');
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ // linen texture
+ ctx.lineWidth=.5;ctx.strokeStyle='#8A6A3A';
+ ctx.globalAlpha=.10;ctx.beginPath();for(let k=-H;k<W;k+=8.5){ctx.moveTo(k,0);ctx.lineTo(k+H,H);}ctx.stroke();
+ ctx.globalAlpha=.07;ctx.beginPath();for(let k=0;k<W+H;k+=8.5){ctx.moveTo(k,0);ctx.lineTo(k-H,H);}ctx.stroke();
+ ctx.globalAlpha=1;
+ // watermark
+ if(logo.complete&&logo.naturalWidth){ctx.globalAlpha=.10;ctx.globalCompositeOperation="multiply";ctx.drawImage(logo,341.5,85,440,440);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;}
+ // band
+ ctx.fillStyle='#0E0E0E';ctx.beginPath();ctx.rect(4,4,1115,786);ctx.rect(32,32,1059,730);ctx.fill('evenodd');
+ const dia=(x,y)=>{ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+7,y);ctx.lineTo(x,y+7);ctx.lineTo(x-7,y);ctx.closePath();ctx.strokeStyle='#8E1219';ctx.lineWidth=1.2;ctx.stroke();ctx.beginPath();ctx.arc(x,y,1.6,0,7);ctx.fillStyle='#B3151E';ctx.fill();};
+ for(let x=62;x<=1061;x+=22){dia(x,18);dia(x,776);}
+ for(let y=62;y<=732;y+=22){dia(18,y);dia(1105,y);}
+ // frame lines
+ ctx.strokeStyle='#8E1219';ctx.lineWidth=2;ctx.strokeRect(4,4,1115,786);ctx.strokeRect(34,34,1055,726);
+ ctx.globalAlpha=.18;ctx.strokeStyle='#B08A4A';ctx.lineWidth=10;ctx.strokeRect(44,44,1035,706);ctx.globalAlpha=1;
+ ctx.strokeStyle='#111';ctx.lineWidth=.8;ctx.strokeRect(44,44,1035,706);
+ // corners
+ [[34,34],[1089,34],[34,760],[1089,760]].forEach(([x,y])=>{ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);ctx.fillStyle='#8E1219';ctx.fillRect(-12,-12,24,24);ctx.restore();ctx.beginPath();ctx.arc(x,y,4,0,7);ctx.fillStyle='#FBF8F1';ctx.fill();});
+ const cx=561.5;ctx.textBaseline='alphabetic';ctx.textAlign='center';
+ ctx.fillStyle='#8E1219';ctx.font='700 14px Cinzel';spaced(ctx,'TRADITIONAL KRAV MAGA · TKM',cx,122,6,'fill');
+ ctx.fillStyle='#0E0E0E';ctx.font='900 52px Cinzel';spaced(ctx,'CERTIFICATE OF RANK',cx,178,4,'fill');
+ ctx.strokeStyle='#8E1219';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(cx-210,198);ctx.lineTo(cx-24,198);ctx.moveTo(cx+24,198);ctx.lineTo(cx+210,198);ctx.stroke();
+ const dm=(x,y,r,c)=>{ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fillStyle=c;ctx.fill();};
+ dm(cx,198,7,'#8E1219');dm(cx-12,198,4,'#0E0E0E');dm(cx+12,198,4,'#0E0E0E');
+ ctx.fillStyle='#333';ctx.font='italic 500 23px "Cormorant Garamond"';ctx.fillText('This certificate is proudly awarded to',cx,240);
+ ctx.strokeStyle='#0E0E0E';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(cx-250,302);ctx.lineTo(cx+250,302);ctx.stroke();
+ const nm=document.getElementById('name').value.trim();
+ if(nm){let fs=46;const fam=isHeb(nm)?'"Frank Ruhl Libre"':'"Cormorant Garamond"';const wt=isHeb(nm)?'700':'italic 600';
+  do{ctx.font=wt+' '+fs+'px '+fam;fs-=1;}while(ctx.measureText(nm).width>480&&fs>20);
+  ctx.direction=isHeb(nm)?'rtl':'ltr';ctx.fillStyle='#0E0E0E';ctx.fillText(nm,cx,292);ctx.direction='ltr';}
+ ctx.font='500 20px "Cormorant Garamond"';ctx.fillStyle='#222';
+ const lines=wrap(ctx,'in recognition of fulfilling all requirements of knowledge, values and technique set forth by the Traditional Krav Maga system, and is hereby granted the rank of',720);
+ let y=340;lines.forEach(l=>{ctx.fillText(l,cx,y);y+=29;});
+ {const by=y+36;ctx.font='700 40px "Bodoni Moda"';
+ const gr=ctx.createLinearGradient(0,by-32,0,by+2);gr.addColorStop(0,belt.g[0]);gr.addColorStop(.55,belt.g[1]);gr.addColorStop(1,belt.g[2]);
+ ctx.strokeStyle=belt.edge;ctx.lineWidth=1.1;ctx.lineJoin='round';ctx.fillStyle=gr;
+ spaced(ctx,belt.en,cx,by,7,'stroke');spaced(ctx,belt.en,cx,by,7,'fill');}
+ // seal logo
+ if(logo.complete&&logo.naturalWidth){ctx.globalCompositeOperation='multiply';ctx.drawImage(logo,cx-66,516,132,132);ctx.globalCompositeOperation='source-over';}
+ // bottom: signature | date | signature
+ const L=235,R=888,ly=678;
+ ctx.strokeStyle='#0E0E0E';ctx.lineWidth=1.2;ctx.beginPath();
+ ctx.moveTo(L-140,ly);ctx.lineTo(L+140,ly);ctx.moveTo(cx-85,ly);ctx.lineTo(cx+85,ly);ctx.moveTo(R-140,ly);ctx.lineTo(R+140,ly);ctx.stroke();
+ const dt=document.getElementById('date').value.trim();
+ if(dt){ctx.font=(isHeb(dt)?'700 20px "Frank Ruhl Libre"':'600 22px "Cormorant Garamond"');ctx.fillStyle='#0E0E0E';ctx.direction=isHeb(dt)?'rtl':'ltr';ctx.fillText(dt,cx,ly-10);ctx.direction='ltr';}
+ if(sig.complete&&sig.naturalWidth){const sw=118,sh=sw*sig.naturalHeight/sig.naturalWidth;ctx.drawImage(sig,R-sw/2+10,ly-sh+4,sw,sh);}
+ ctx.fillStyle='#0E0E0E';ctx.font='700 16px Cinzel';
+ spaced(ctx,'LEONARDO DE OLIVEIRA',L,704,1.5,'fill');spaced(ctx,'DATE',cx,704,2,'fill');spaced(ctx,'EREZ SHARABY',R,704,1.5,'fill');
+ ctx.fillStyle='#8E1219';ctx.font='italic 600 16px "Cormorant Garamond"';ctx.fillText('Head of Organization',R,726);ctx.fillText('Instructor',L,726);
+ ctx.restore();
+}
+
+const T={he:{title:"תעודות דרגה, קרב מגע מסורתי",sub:"בוחרים חגורה, כותבים שם, מורידים קובץ ומדפיסים",nameL:"שם החניך",nameH:"אפשר לכתוב בעברית או באנגלית. ריק = קו ריק לכתיבה ביד.",dateL:"תאריך",dateH:"ריק = קו ריק לכתיבה ביד.",beltL:"חגורה",dl:"הורדת קובץ להדפסה",t1:"מדפיסים על דף א4 לרוחב, בגודל אמיתי (100%).",t2:"הכי יפה על נייר עבה או נייר תעודות.",t3:"המדריך חותם ביד אחרי ההדפסה.",ph:"לדוגמה: דניאל כהן",lang:"English",cv:"תצוגה מקדימה של התעודה",logo:"סמל הארגון",
+ noDl:"ההורדה לא זמינה בתצוגה הזו. פתחו את העמוד דרך הקישור המלא ונסו שוב.",loading:"הכלי עדיין נטען, נסו שוב בעוד רגע.",making:"מכין קובץ באיכות הדפסה...",done:"הקובץ ירד. אפשר להדפיס.",cancel:"ההורדה בוטלה.",err:"משהו השתבש, נסו שוב.",file:"תעודה",noname:"ללא שם"},
+en:{title:"TKM Rank Certificates",sub:"Choose a belt, type a name, download and print",nameL:"Student name",nameH:"English or Hebrew. Leave empty for a blank line to write by hand.",dateL:"Date",dateH:"Leave empty for a blank line to write by hand.",beltL:"Belt",dl:"Download print-ready file",t1:"Print on A4 landscape at actual size (100%).",t2:"Looks best on thick or certificate paper.",t3:"The instructor signs by hand after printing.",ph:"e.g. Daniel Cohen",lang:"עברית",cv:"Certificate preview",logo:"TKM logo",
+ noDl:"Downloading isn't available in this view. Open the page from its full link and try again.",loading:"Still loading, try again in a moment.",making:"Preparing a print-quality file...",done:"Downloaded. Ready to print.",cancel:"Download cancelled.",err:"Something went wrong, please try again.",file:"Certificate",noname:"no name"}};
+let lang='he';try{const v=localStorage.getItem('tkm-lang');if(v==='he'||v==='en')lang=v;else if(!/^he/i.test(navigator.language||''))lang='en';}catch(e){if(!/^he/i.test(navigator.language||''))lang='en';}
+function applyLang(){const t=T[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='he'?'rtl':'ltr';document.title=t.title;
+ document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t[el.dataset.t]);
+ document.getElementById('name').placeholder=t.ph;document.getElementById('lang').textContent=t.lang;
+ document.getElementById('cv').setAttribute('aria-label',t.cv);document.getElementById('hdrLogo').alt=t.logo;
+ document.querySelectorAll('.belt').forEach(b=>b.textContent=lang==='he'?b.dataset.he:b.dataset.en);}
+document.getElementById('lang').onclick=()=>{lang=lang==='he'?'en':'he';try{localStorage.setItem('tkm-lang',lang);}catch(e){}applyLang();};
+applyLang();
+const cv=document.getElementById('cv');
+function render(){const ctx=cv.getContext('2d');draw(ctx,cv.width/W);}
+['name','date'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+const fontsReady=Promise.all(['900 52px Cinzel','700 14px Cinzel','italic 500 23px "Cormorant Garamond"','italic 600 16px "Cormorant Garamond"','500 20px "Cormorant Garamond"','600 22px "Cormorant Garamond"','700 20px "Frank Ruhl Libre"','700 40px "Bodoni Moda"'].map(f=>document.fonts.load(f,'Aaא').catch(()=>{}))).then(()=>document.fonts.ready);
+logo.onload=render;fontsReady.then(render);render();
+
+let downloads=null;
+(async()=>{try{if(window.claude&&claude.use)downloads=await claude.use('downloads');}catch(e){}})();
+const st=document.getElementById('status'),btn=document.getElementById('dl');
+document.getElementById('form').addEventListener('submit',async e=>{
+ e.preventDefault();
+  if(!window.jspdf){st.textContent=T[lang].loading;return;}
+ btn.disabled=true;st.textContent=T[lang].making;
+ try{
+  await fontsReady;
+  const big=document.createElement('canvas');big.width=3508;big.height=2480;
+  draw(big.getContext('2d'),3508/W);
+  const img=big.toDataURL('image/jpeg',0.95);
+  const pdf=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  pdf.addImage(img,'JPEG',0,0,297,210);
+  const nm=document.getElementById('name').value.trim()||T[lang].noname;
+  const fname=T[lang].file+' '+(lang==='he'?belt.he:belt.enL)+' '+nm+'.pdf';
+  if(downloads){await downloads.save({filename:fname,data:pdf.output('arraybuffer')});}else{pdf.save(fname);}
+  st.textContent=T[lang].done;
+ }catch(err){st.textContent=(err&&err.code==='declined')?T[lang].cancel:T[lang].err;}
+ btn.disabled=false;
+});
+</script>
+</body>
+</html>
