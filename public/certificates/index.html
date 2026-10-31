@@ -153,7 +153,7 @@ function draw(ctx,s){
  ctx.moveTo(L-140,ly);ctx.lineTo(L+140,ly);ctx.moveTo(cx-85,ly);ctx.lineTo(cx+85,ly);ctx.moveTo(R-140,ly);ctx.lineTo(R+140,ly);ctx.stroke();
  const dt=document.getElementById('date').value.trim();
  if(dt){ctx.font=(isHeb(dt)?'700 20px "Frank Ruhl Libre"':'600 22px "Cormorant Garamond"');ctx.fillStyle='#0E0E0E';ctx.direction=isHeb(dt)?'rtl':'ltr';ctx.fillText(dt,cx,ly-10);ctx.direction='ltr';}
- if(sig.complete&&sig.naturalWidth){const sw=118,sh=sw*sig.naturalHeight/sig.naturalWidth;ctx.drawImage(sig,R-sw/2+10,ly-sh+4,sw,sh);}
+ if(sig.complete&&sig.naturalWidth){const sw=100,sh=sw*sig.naturalHeight/sig.naturalWidth;ctx.drawImage(sig,R-sw/2,ly-sh+3,sw,sh);}
  ctx.fillStyle='#0E0E0E';ctx.font='700 16px Cinzel';
  spaced(ctx,'LEONARDO DE OLIVEIRA',L,704,1.5,'fill');spaced(ctx,'DATE',cx,704,2,'fill');spaced(ctx,'EREZ SHARABY',R,704,1.5,'fill');
  ctx.fillStyle='#8E1219';ctx.font='italic 600 16px "Cormorant Garamond"';ctx.fillText('Head of Organization',R,726);ctx.fillText('Instructor',L,726);
