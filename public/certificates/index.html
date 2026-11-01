@@ -7,7 +7,7 @@
 <title>תעודות דרגה קרב מגע מסורתי</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Bodoni+Moda:opsz,wght@6..96,700&family=Frank+Ruhl+Libre:wght@700&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -127,7 +127,7 @@ function draw(ctx,s){
  // corners
  [[34,34],[1089,34],[34,760],[1089,760]].forEach(([x,y])=>{ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);ctx.fillStyle='#8E1219';ctx.fillRect(-12,-12,24,24);ctx.restore();ctx.beginPath();ctx.arc(x,y,4,0,7);ctx.fillStyle='#FBF8F1';ctx.fill();});
  const cx=561.5;ctx.textBaseline='alphabetic';ctx.textAlign='center';
- ctx.fillStyle='#8E1219';ctx.font='700 14px Cinzel';spaced(ctx,'TRADITIONAL KRAV MAGA · TKM',cx,122,6,'fill');
+ ctx.fillStyle='#860F16';ctx.font='900 25px Cinzel';spaced(ctx,'TRADITIONAL KRAV MAGA · TKM',cx,116,4,'fill');
  ctx.fillStyle='#0E0E0E';ctx.font='900 52px Cinzel';spaced(ctx,'CERTIFICATE OF RANK',cx,178,4,'fill');
  ctx.strokeStyle='#8E1219';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(cx-210,198);ctx.lineTo(cx-24,198);ctx.moveTo(cx+24,198);ctx.lineTo(cx+210,198);ctx.stroke();
  const dm=(x,y,r,c)=>{ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fillStyle=c;ctx.fill();};
@@ -135,9 +135,9 @@ function draw(ctx,s){
  ctx.fillStyle='#333';ctx.font='italic 500 23px "Cormorant Garamond"';ctx.fillText('This certificate is proudly awarded to',cx,240);
  ctx.strokeStyle='#0E0E0E';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(cx-250,302);ctx.lineTo(cx+250,302);ctx.stroke();
  const nm=document.getElementById('name').value.trim();
- if(nm){let fs=46;const fam=isHeb(nm)?'"Frank Ruhl Libre"':'"Cormorant Garamond"';const wt=isHeb(nm)?'700':'italic 600';
+ if(nm){let fs=58;const fam=isHeb(nm)?'"Frank Ruhl Libre"':'"Cormorant Garamond"';const wt=isHeb(nm)?'900':'italic 700';
   do{ctx.font=wt+' '+fs+'px '+fam;fs-=1;}while(ctx.measureText(nm).width>480&&fs>20);
-  ctx.direction=isHeb(nm)?'rtl':'ltr';ctx.fillStyle='#0E0E0E';ctx.fillText(nm,cx,292);ctx.direction='ltr';}
+  ctx.direction=isHeb(nm)?'rtl':'ltr';ctx.fillStyle='#050505';ctx.strokeStyle='#050505';ctx.lineWidth=0.6;ctx.strokeText(nm,cx,293);ctx.fillText(nm,cx,293);ctx.direction='ltr';}
  ctx.font='500 20px "Cormorant Garamond"';ctx.fillStyle='#222';
  const lines=wrap(ctx,'in recognition of fulfilling all requirements of knowledge, values and technique set forth by the Traditional Krav Maga system, and is hereby granted the rank of',720);
  let y=340;lines.forEach(l=>{ctx.fillText(l,cx,y);y+=29;});
@@ -153,10 +153,10 @@ function draw(ctx,s){
  ctx.moveTo(L-140,ly);ctx.lineTo(L+140,ly);ctx.moveTo(cx-85,ly);ctx.lineTo(cx+85,ly);ctx.moveTo(R-140,ly);ctx.lineTo(R+140,ly);ctx.stroke();
  const dt=document.getElementById('date').value.trim();
  if(dt){ctx.font=(isHeb(dt)?'700 20px "Frank Ruhl Libre"':'600 22px "Cormorant Garamond"');ctx.fillStyle='#0E0E0E';ctx.direction=isHeb(dt)?'rtl':'ltr';ctx.fillText(dt,cx,ly-10);ctx.direction='ltr';}
- if(sig.complete&&sig.naturalWidth){const sw=100,sh=sw*sig.naturalHeight/sig.naturalWidth;ctx.drawImage(sig,R-sw/2,ly-sh+3,sw,sh);}
+ if(sig.complete&&sig.naturalWidth){const sw=86,sh=sw*sig.naturalHeight/sig.naturalWidth;ctx.drawImage(sig,R-sw/2,ly-sh+3,sw,sh);}
  ctx.fillStyle='#0E0E0E';ctx.font='700 16px Cinzel';
  spaced(ctx,'LEONARDO DE OLIVEIRA',L,704,1.5,'fill');spaced(ctx,'DATE',cx,704,2,'fill');spaced(ctx,'EREZ SHARABY',R,704,1.5,'fill');
- ctx.fillStyle='#8E1219';ctx.font='italic 600 16px "Cormorant Garamond"';ctx.fillText('Head of Organization',R,726);ctx.fillText('Instructor',L,726);
+ ctx.fillStyle='#8E1219';ctx.font='italic 600 16px "Cormorant Garamond"';ctx.fillText('Founder and Head of Organization',R,726);ctx.fillText('Instructor',L,726);
  ctx.restore();
 }
 
@@ -175,7 +175,7 @@ applyLang();
 const cv=document.getElementById('cv');
 function render(){const ctx=cv.getContext('2d');draw(ctx,cv.width/W);}
 ['name','date'].forEach(id=>document.getElementById(id).addEventListener('input',render));
-const fontsReady=Promise.all(['900 52px Cinzel','700 14px Cinzel','italic 500 23px "Cormorant Garamond"','italic 600 16px "Cormorant Garamond"','500 20px "Cormorant Garamond"','600 22px "Cormorant Garamond"','700 20px "Frank Ruhl Libre"','700 40px "Bodoni Moda"'].map(f=>document.fonts.load(f,'Aaא').catch(()=>{}))).then(()=>document.fonts.ready);
+const fontsReady=Promise.all(['900 52px Cinzel','700 14px Cinzel','italic 500 23px "Cormorant Garamond"','italic 600 16px "Cormorant Garamond"','500 20px "Cormorant Garamond"','600 22px "Cormorant Garamond"','700 20px "Frank Ruhl Libre"','700 40px "Bodoni Moda"','italic 700 58px "Cormorant Garamond"','900 40px "Frank Ruhl Libre"'].map(f=>document.fonts.load(f,'Aaא').catch(()=>{}))).then(()=>document.fonts.ready);
 logo.onload=render;fontsReady.then(render);render();
 
 let downloads=null;
